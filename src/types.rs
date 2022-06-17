@@ -3,13 +3,13 @@ use std::collections::HashMap;
 use chrono::{DateTime, Utc};
 
 #[derive(Deserialize, Debug)]
-pub(crate) struct Response<T> {
+pub struct Response<T> {
     pub(crate) data : T,
     links: Option<HashMap<String, Option<String>>>
 }
 
 #[derive(Deserialize, Debug)]
-pub(crate) struct Account {
+pub struct Account {
     #[serde(rename = "type")]
     resource_type: String,
     pub(crate) id: String,
