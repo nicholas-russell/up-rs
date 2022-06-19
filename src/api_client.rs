@@ -61,7 +61,8 @@ impl ListAccounts {
                     let mut json: ApiResponse<Vec<Account>> = v.json().await.unwrap();
                     rtn.append(&mut json.data);
                     println!("{:?}", rtn);
-                    while let next = json.links.as_ref().unwrap().get("next").unwrap().to_owned().unwrap() {
+                    while ApiResponse::has_next(&json) {
+                        let next = json.links.as_ref().unwrap().get("next").unwrap().to_owned().unwrap();
                         let client = reqwest::Client::new();
                         let res =  client
                             .get(next)

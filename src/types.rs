@@ -11,6 +11,19 @@ pub struct ApiResponse<T> {
     pub(crate) links: Option<HashMap<String, Option<String>>>
 }
 
+impl<T> ApiResponse<T> {
+    pub(crate) fn has_next(api_response: &ApiResponse<T>) -> bool {
+        return match &api_response.links {
+            None => false,
+            Some(v) => {
+                match v.get("next") {
+                    None => false,
+                    Some(v2) => v2.is_some()
+                }
+            }
+        }
+    }
+}
 
 #[derive(Deserialize, Debug)]
 pub struct Account {
