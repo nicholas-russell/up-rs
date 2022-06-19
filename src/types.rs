@@ -1,12 +1,16 @@
+
+
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
+use std::fmt;
 use chrono::{DateTime, Utc};
 
 #[derive(Deserialize, Debug)]
-pub struct Response<T> {
+pub struct ApiResponse<T> {
     pub(crate) data : T,
-    links: Option<HashMap<String, Option<String>>>
+    pub(crate) links: Option<HashMap<String, Option<String>>>
 }
+
 
 #[derive(Deserialize, Debug)]
 pub struct Account {
@@ -37,15 +41,31 @@ pub(crate) struct AccountAttributes {
 }
 
 #[derive(Deserialize, Debug)]
-enum AccountType {
+pub enum AccountType {
     SAVER,
     TRANSACTIONAL,
 }
 
+impl fmt::Display for AccountType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
+}
+
 #[derive(Deserialize, Debug)]
-enum OwnershipType {
+pub enum OwnershipType {
     INDIVIDUAL,
     JOINT,
+}
+
+impl fmt::Display for OwnershipType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+        // or, alternatively:
+        // fmt::Debug::fmt(self, f)
+    }
 }
 
 #[derive(Deserialize, Debug)]
