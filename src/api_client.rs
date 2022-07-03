@@ -6,6 +6,8 @@ use crate::{Account, PingNotAuthorized, PingSuccessful};
 use crate::types::{AccountType, ApiResponse, OwnershipType};
 use core::option::Option;
 use std::borrow::Borrow;
+use serde::de::DeserializeOwned;
+use serde::Deserialize;
 use serde_json::Value;
 
 const BASE_URL: &str = "https://api.up.com.au/api/v1";
@@ -93,6 +95,7 @@ impl ListAccounts {
 pub struct RetrieveAccount {
     url: String,
     headers: HeaderMap,
+    params: Vec<(String, String)>,
     pub response: Option<String>
 }
 
@@ -102,19 +105,30 @@ impl RetrieveAccount {
         header_map.insert(AUTHORIZATION, format!("Bearer {}", api_key).parse().unwrap());
         return RetrieveAccount { url: format!("{}/accounts/{}",BASE_URL,id).to_string(),
             headers: header_map,
+            params: Vec::new(),
             response: None};
     }
-    pub async fn send(self) -> Result<Account, String> {
-        let client = reqwest::Client::new();
-        let res =  client
-            .get(self.url)
-            .headers(self.headers.to_owned())
-            .send().await;
 
+    pub async fn send(self) -> Result<Account, String> {
+        return RequestSender::send::<Account>(self.url, self.headers, self.params, Some(false)).await;
+    }
+}
+
+struct RequestSender {}
+
+impl RequestSender {
+    pub async fn send<T: DeserializeOwned>(url: String, headers: HeaderMap, params: Vec<(String,String)>, paginate: Option<bool>) -> Result<T, String> {
+        paginate.unwrap_or(true);
+        let client = reqwest::Client::new();
+        let res = client
+            .get(url)
+            .headers(headers.to_owned())
+            .query(&params)
+            .send().await;
         return match res {
             Ok(v) => {
                 if v.status().is_success() {
-                    let json: ApiResponse<Account> = v.json().await.unwrap();
+                    let json: ApiResponse<T> = v.json().await.unwrap();
                     Ok(json.data)
                 } else {
                     Err(String::from(v.text().await.unwrap()))
