@@ -18,7 +18,7 @@ pub struct ListAccounts {
 }
 
 impl ListAccounts {
-    pub fn new(api_key: String) -> ListAccounts {
+    pub fn new(api_key: &String) -> ListAccounts {
         let mut header_map: HeaderMap = HeaderMap::new();
         header_map.insert(AUTHORIZATION, format!("Bearer {}", api_key).parse().unwrap());
         return ListAccounts { url: format!("{}/accounts",BASE_URL).to_string(),
@@ -86,6 +86,41 @@ impl ListAccounts {
                 }
             },
             Err(e) => return Err(e.to_string())
+        }
+    }
+}
+
+pub struct RetrieveAccount {
+    url: String,
+    headers: HeaderMap,
+    pub response: Option<String>
+}
+
+impl RetrieveAccount {
+    pub fn new(api_key: &String, id: String) -> RetrieveAccount {
+        let mut header_map: HeaderMap = HeaderMap::new();
+        header_map.insert(AUTHORIZATION, format!("Bearer {}", api_key).parse().unwrap());
+        return RetrieveAccount { url: format!("{}/accounts/{}",BASE_URL,id).to_string(),
+            headers: header_map,
+            response: None};
+    }
+    pub async fn send(self) -> Result<Account, String> {
+        let client = reqwest::Client::new();
+        let res =  client
+            .get(self.url)
+            .headers(self.headers.to_owned())
+            .send().await;
+
+        return match res {
+            Ok(v) => {
+                if v.status().is_success() {
+                    let json: ApiResponse<Account> = v.json().await.unwrap();
+                    Ok(json.data)
+                } else {
+                    Err(String::from(v.text().await.unwrap()))
+                }
+            },
+            Err(e) => Err(e.to_string())
         }
     }
 }
