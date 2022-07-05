@@ -1,6 +1,6 @@
 #![allow(dead_code, unused_imports)]
 
-mod query_builder;
+mod request_sender;
 pub mod types;
 pub mod api_client;
 

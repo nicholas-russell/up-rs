@@ -9,6 +9,7 @@ use std::borrow::Borrow;
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 use serde_json::Value;
+use crate::request_sender::RequestSender;
 
 const BASE_URL: &str = "https://api.up.com.au/api/v1";
 
@@ -49,46 +50,7 @@ impl ListAccounts {
     }
 
     pub async fn send(self) -> Result<Vec<Account>, String> {
-        let client = reqwest::Client::new();
-        let res =  client
-            .get(self.url)
-            .headers(self.headers.to_owned())
-            .query(&self.params)
-            .send().await;
-
-        match res {
-            Ok(v) => {
-                if v.status().is_success() {
-                    let mut rtn: Vec<Account> = Vec::new();
-                    let mut json: ApiResponse<Vec<Account>> = v.json().await.unwrap();
-                    rtn.append(&mut json.data);
-                    println!("{:?}", rtn);
-                    while ApiResponse::has_next(&json) {
-                        let next = json.links.as_ref().unwrap().get("next").unwrap().to_owned().unwrap();
-                        let client = reqwest::Client::new();
-                        let res =  client
-                            .get(next)
-                            .headers(self.headers.to_owned())
-                            .send().await;
-                        match res {
-                            Ok(v) => {
-                                if v.status().is_success() {
-                                    json = v.json().await.unwrap();
-                                    rtn.append(&mut json.data);
-                                } else {
-                                    return Err(v.text().await.unwrap());
-                                }
-                            },
-                            Err(e) => return Err(e.to_string())
-                        }
-                    }
-                    return Ok(rtn)
-                } else {
-                    return Err(String::from(v.text().await.unwrap()));
-                }
-            },
-            Err(e) => return Err(e.to_string())
-        }
+        RequestSender::send_paginate::<Account>(self.url,self.headers,self.params).await
     }
 }
 
@@ -110,31 +72,6 @@ impl RetrieveAccount {
     }
 
     pub async fn send(self) -> Result<Account, String> {
-        return RequestSender::send::<Account>(self.url, self.headers, self.params, Some(false)).await;
-    }
-}
-
-struct RequestSender {}
-
-impl RequestSender {
-    pub async fn send<T: DeserializeOwned>(url: String, headers: HeaderMap, params: Vec<(String,String)>, paginate: Option<bool>) -> Result<T, String> {
-        paginate.unwrap_or(true);
-        let client = reqwest::Client::new();
-        let res = client
-            .get(url)
-            .headers(headers.to_owned())
-            .query(&params)
-            .send().await;
-        return match res {
-            Ok(v) => {
-                if v.status().is_success() {
-                    let json: ApiResponse<T> = v.json().await.unwrap();
-                    Ok(json.data)
-                } else {
-                    Err(String::from(v.text().await.unwrap()))
-                }
-            },
-            Err(e) => Err(e.to_string())
-        }
+        RequestSender::send::<Account>(self.url, self.headers, self.params).await
     }
 }
