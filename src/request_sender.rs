@@ -3,9 +3,6 @@ use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 use crate::ApiResponse;
 
-const API_URL: &str = "https://api.up.com.au/api";
-const API_VER: &str = "v1";
-
 pub(crate) struct RequestSender {}
 
 impl RequestSender {
@@ -16,7 +13,7 @@ impl RequestSender {
         -> Result<Vec<T>, String> {
         let client = reqwest::Client::new();
         let res = client
-            .get(url)
+            .get(&url)
             .headers(headers.to_owned())
             .query(&params)
             .send().await.unwrap();
@@ -54,7 +51,7 @@ impl RequestSender {
     pub async fn send<T: DeserializeOwned>(url: String, headers: HeaderMap, params: Vec<(String,String)>) -> Result<T, String> {
         let client = reqwest::Client::new();
         let res = client
-            .get(url)
+            .get(&url)
             .headers(headers.to_owned())
             .query(&params)
             .send().await.unwrap();
