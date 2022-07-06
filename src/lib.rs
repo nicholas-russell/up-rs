@@ -1,7 +1,7 @@
 #![allow(dead_code, unused_imports)]
 
 pub mod api_client;
-mod request_sender;
+pub mod request_sender;
 pub mod types;
 
 use reqwest;

@@ -92,36 +92,36 @@ struct AccountTransactionsRelationships {
 }
 
 #[derive(Deserialize, Debug)]
-pub(crate) struct Category {
+pub struct Category {
     #[serde(rename = "type")]
-    resource_type: String,
-    id: String,
-    attributes: CategoryAttributes,
-    relationships: CategoryRelationships,
-    links: Option<HashMap<String, String>>,
+    pub resource_type: String,
+    pub id: String,
+    pub attributes: CategoryAttributes,
+    pub relationships: CategoryRelationships,
+    pub links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
-struct CategoryAttributes {
-    name: String,
+pub struct CategoryAttributes {
+    pub name: String,
 }
 
 #[derive(Deserialize, Debug)]
-struct CategoryRelationships {
-    parent: ParentRelationship,
-    children: ChildRelationship,
+pub struct CategoryRelationships {
+    pub parent: ParentRelationship,
+    pub children: ChildRelationship,
 }
 
 #[derive(Deserialize, Debug)]
-struct ChildRelationship {
-    data: Option<Vec<HashMap<String, String>>>,
-    links: Option<HashMap<String, String>>,
+pub struct ChildRelationship {
+    pub data: Option<Vec<HashMap<String, String>>>,
+    pub links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
-struct ParentRelationship {
-    data: Option<HashMap<String, String>>,
-    links: Option<HashMap<String, String>>,
+pub struct ParentRelationship {
+    pub data: Option<HashMap<String, String>>,
+    pub links: Option<HashMap<String, String>>,
 }
 
 #[derive(Serialize, Debug)]

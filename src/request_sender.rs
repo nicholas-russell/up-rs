@@ -1,8 +1,17 @@
-use crate::api_client::ApiRequest;
 use crate::ApiResponse;
 use reqwest::header::HeaderMap;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
+use async_trait::async_trait;
+
+#[async_trait]
+pub trait ApiRequest {
+    type T;
+    async fn send(self) -> Result<Self::T, String>;
+    fn get_url(&self) -> &String;
+    fn get_params(&self) -> &Vec<(String, String)>;
+    fn get_api_key(&self) -> &String;
+}
 
 pub(crate) struct RequestSender {}
 
@@ -56,16 +65,12 @@ impl RequestSender {
         };
     }
 
-    pub async fn send<T: DeserializeOwned>(
-        url: String,
-        headers: HeaderMap,
-        params: Vec<(String, String)>,
-    ) -> Result<T, String> {
+    pub async fn send<T: DeserializeOwned, K: ApiRequest>(base: K) -> Result<T, String> {
         let client = reqwest::Client::new();
         let res = client
-            .get(&url)
-            .headers(headers.to_owned())
-            .query(&params)
+            .get(base.get_url())
+            .bearer_auth(base.get_api_key())
+            .query(base.get_params())
             .send()
             .await
             .unwrap();
