@@ -28,29 +28,29 @@ impl<T> ApiResponse<T> {
 #[derive(Deserialize, Debug)]
 pub struct Account {
     #[serde(rename = "type")]
-    resource_type: String,
-    pub(crate) id: String,
-    pub(crate) attributes: AccountAttributes,
-    relationships: AccountRelationships,
-    links: HashMap<String, String>
+    pub resource_type: String,
+    pub id: String,
+    pub attributes: AccountAttributes,
+    pub relationships: AccountRelationships,
+    pub links: HashMap<String, String>
 }
 
 #[derive(Deserialize, Debug)]
-struct AccountRelationships {
+pub struct AccountRelationships {
     transactions: AccountTransactionsRelationships
 }
 
 #[derive(Deserialize, Debug)]
-pub(crate) struct AccountAttributes {
+pub struct AccountAttributes {
     #[serde(rename = "displayName")]
-    pub(crate) display_name: String,
+    pub display_name: String,
     #[serde(rename = "accountType")]
-    account_type: AccountType,
+    pub account_type: AccountType,
     #[serde(rename = "ownershipType")]
-    ownership_type: OwnershipType,
-    balance: Money,
+    pub ownership_type: OwnershipType,
+    pub balance: Money,
     #[serde(rename = "createdAt")]
-    created_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -82,12 +82,12 @@ impl fmt::Display for OwnershipType {
 }
 
 #[derive(Deserialize, Debug)]
-struct Money {
+pub struct Money {
     #[serde(rename = "currencyCode")]
-    currency_code: String,
-    value: String,
+    pub currency_code: String,
+    pub value: String,
     #[serde(rename = "valueInBaseUnits")]
-    value_in_base_units: i128
+    pub value_in_base_units: i128
 }
 
 #[derive(Deserialize, Debug)]

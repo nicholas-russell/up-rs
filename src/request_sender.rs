@@ -1,21 +1,19 @@
 use reqwest::header::HeaderMap;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
+use crate::api_client::ApiRequest;
 use crate::ApiResponse;
 
 pub(crate) struct RequestSender {}
 
 impl RequestSender {
-    pub(crate) async fn send_paginate<T: DeserializeOwned>(
-        url: String,
-        headers: HeaderMap,
-        params: Vec<(String, String)>)
+    pub(crate) async fn send_paginate<T: DeserializeOwned, K: ApiRequest>(base: K)
         -> Result<Vec<T>, String> {
         let client = reqwest::Client::new();
         let res = client
-            .get(&url)
-            .headers(headers.to_owned())
-            .query(&params)
+            .get(base.get_url())
+            .bearer_auth(base.get_api_key())
+            .query(base.get_params())
             .send().await.unwrap();
 
         return match res.status() {
@@ -28,7 +26,7 @@ impl RequestSender {
                     let client = reqwest::Client::new();
                     let res = client
                         .get(next)
-                        .headers(headers.to_owned())
+                        .bearer_auth(base.get_api_key())
                         .send().await.unwrap();
                     match res.status() {
                         StatusCode::OK => {

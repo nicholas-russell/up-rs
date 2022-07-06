@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use async_trait::async_trait;
 use reqwest::{header, RequestBuilder, StatusCode};
 use reqwest::{Error, Response};
 use reqwest::header::{AUTHORIZATION, HeaderMap};
@@ -13,21 +14,50 @@ use crate::request_sender::RequestSender;
 
 const BASE_URL: &str = "https://api.up.com.au/api/v1";
 
+#[async_trait]
+pub trait ApiRequest {
+    type T;
+    async fn send(self) -> Result<Self::T, String>;
+    fn get_url(&self) -> &String;
+    fn get_params(&self) -> &Vec<(String, String)>;
+    fn get_api_key(&self) -> &String;
+}
+
 pub struct ListAccounts {
     url: String,
-    headers: HeaderMap,
     params: Vec<(String, String)>,
-    pub response: Option<String>
+    api_key: String,
+}
+
+#[async_trait]
+impl ApiRequest for ListAccounts {
+    type T = Vec<Account>;
+
+    async fn send(self) -> Result<Self::T, String> {
+        RequestSender::send_paginate::<Account, ListAccounts>(self).await
+    }
+
+    fn get_url(&self) -> &String {
+        &self.url
+    }
+
+    fn get_api_key(&self) -> &String {
+        &self.api_key
+    }
+
+    fn get_params(&self) -> &Vec<(String, String)> {
+        &self.params
+    }
+
+
 }
 
 impl ListAccounts {
     pub fn new(api_key: &String) -> ListAccounts {
-        let mut header_map: HeaderMap = HeaderMap::new();
-        header_map.insert(AUTHORIZATION, format!("Bearer {}", api_key).parse().unwrap());
         return ListAccounts { url: format!("{}/accounts",BASE_URL).to_string(),
-            headers: header_map,
-            params: Vec::new(),
-            response: None};
+            api_key: api_key.to_string(),
+            params: Vec::new()
+        };
     }
 
     pub fn page_size(mut self, page_size: i32) -> ListAccounts {
@@ -49,16 +79,15 @@ impl ListAccounts {
         return self
     }
 
-    pub async fn send(self) -> Result<Vec<Account>, String> {
+    /*pub async fn send(self) -> Result<Vec<Account>, String> {
         RequestSender::send_paginate::<Account>(self.url,self.headers,self.params).await
-    }
+    }*/
 }
 
 pub struct RetrieveAccount {
     url: String,
     headers: HeaderMap,
-    params: Vec<(String, String)>,
-    pub response: Option<String>
+    params: Vec<(String, String)>
 }
 
 impl RetrieveAccount {
@@ -67,8 +96,8 @@ impl RetrieveAccount {
         header_map.insert(AUTHORIZATION, format!("Bearer {}", api_key).parse().unwrap());
         return RetrieveAccount { url: format!("{}/accounts/{}",BASE_URL,id).to_string(),
             headers: header_map,
-            params: Vec::new(),
-            response: None};
+            params: Vec::new()
+        };
     }
 
     pub async fn send(self) -> Result<Account, String> {
