@@ -1,27 +1,23 @@
-
-
-use serde::{Serialize, Deserialize};
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
-use chrono::{DateTime, Utc};
 
 #[derive(Deserialize, Debug)]
 pub struct ApiResponse<T> {
-    pub(crate) data : T,
-    pub(crate) links: Option<HashMap<String, Option<String>>>
+    pub(crate) data: T,
+    pub(crate) links: Option<HashMap<String, Option<String>>>,
 }
 
 impl<T> ApiResponse<T> {
     pub(crate) fn has_next(api_response: &ApiResponse<T>) -> bool {
         return match &api_response.links {
             None => false,
-            Some(v) => {
-                match v.get("next") {
-                    None => false,
-                    Some(v2) => v2.is_some()
-                }
-            }
-        }
+            Some(v) => match v.get("next") {
+                None => false,
+                Some(v2) => v2.is_some(),
+            },
+        };
     }
 }
 
@@ -32,12 +28,12 @@ pub struct Account {
     pub id: String,
     pub attributes: AccountAttributes,
     pub relationships: AccountRelationships,
-    pub links: HashMap<String, String>
+    pub links: HashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct AccountRelationships {
-    transactions: AccountTransactionsRelationships
+    transactions: AccountTransactionsRelationships,
 }
 
 #[derive(Deserialize, Debug)]
@@ -87,12 +83,12 @@ pub struct Money {
     pub currency_code: String,
     pub value: String,
     #[serde(rename = "valueInBaseUnits")]
-    pub value_in_base_units: i128
+    pub value_in_base_units: i128,
 }
 
 #[derive(Deserialize, Debug)]
 struct AccountTransactionsRelationships {
-    links: HashMap<String, String>
+    links: HashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -102,66 +98,66 @@ pub(crate) struct Category {
     id: String,
     attributes: CategoryAttributes,
     relationships: CategoryRelationships,
-    links: Option<HashMap<String, String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
 struct CategoryAttributes {
-    name: String
+    name: String,
 }
 
 #[derive(Deserialize, Debug)]
 struct CategoryRelationships {
     parent: ParentRelationship,
-    children: ChildRelationship
+    children: ChildRelationship,
 }
 
 #[derive(Deserialize, Debug)]
 struct ChildRelationship {
     data: Option<Vec<HashMap<String, String>>>,
-    links: Option<HashMap<String, String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
 struct ParentRelationship {
     data: Option<HashMap<String, String>>,
-    links: Option<HashMap<String, String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Serialize, Debug)]
 struct Payload<T> {
-    data: T
+    data: T,
 }
 
 #[derive(Serialize, Debug)]
 struct CategorizeTransactionData {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String
+    id: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub(crate) struct Tag {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String
+    id: String,
 }
 
 #[derive(Deserialize, Debug)]
 struct TagRelationships {
-    transactions: TransactionRelationships
+    transactions: TransactionRelationships,
 }
 
 #[derive(Serialize, Debug)]
 struct CategorizeTransaction {
-    data: CategorizeTransactionData
+    data: CategorizeTransactionData,
 }
 
 #[derive(Serialize, Debug)]
 struct TagTransactionData {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String
+    id: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -171,7 +167,7 @@ pub(crate) struct Transaction {
     id: String,
     attributes: TransactionAttributes,
     relationships: TransactionRelationships,
-    links: Option<HashMap<String,String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -209,27 +205,27 @@ enum TransactionStatus {
 struct HoldInfo {
     amount: Money,
     #[serde(rename = "foreignAmount")]
-    foreign_amount: Option<Money>
+    foreign_amount: Option<Money>,
 }
 
 #[derive(Deserialize, Debug)]
 struct RoundUp {
     amount: Money,
     #[serde(rename = "boostPortion")]
-    boost_portion: Option<Money>
+    boost_portion: Option<Money>,
 }
 
 #[derive(Deserialize, Debug)]
 struct Cashback {
     description: String,
-    amount: Money
+    amount: Money,
 }
 
 #[derive(Deserialize, Debug)]
 struct CardPurchaseMethod {
     method: CardPurchaseMethodType,
     #[serde(rename = "cardNumberSuffix")]
-    card_number_suffix: Option<String>
+    card_number_suffix: Option<String>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -241,7 +237,7 @@ enum CardPurchaseMethodType {
     CARD_ON_FILE,
     ECOMMERCE,
     MAGNETIC_STRIPE,
-    CONTACTLESS
+    CONTACTLESS,
 }
 
 #[derive(Deserialize, Debug)]
@@ -250,69 +246,69 @@ struct TransactionRelationships {
     #[serde(rename = "transferAccount")]
     transfer_account: TransactionTransferAccountRelationship,
     category: TransactionCategoryRelationship,
-    #[serde(rename= "parentCategory")]
+    #[serde(rename = "parentCategory")]
     parent_category: TransactionCategoryRelationship,
-    tags: TransactionTagsRelationship
+    tags: TransactionTagsRelationship,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionAccountRelationship {
     data: TransactionAccountRelationshipData,
-    links: Option<HashMap<String, String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionAccountRelationshipData {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String
+    id: String,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionTransferAccountRelationship {
     data: Option<TransactionTransferAccountRelationshipData>,
-    links: Option<HashMap<String, String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionTransferAccountRelationshipData {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String
+    id: String,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionCategoryRelationship {
     data: Option<TransactionCategoryRelationshipData>,
-    links: Option<HashMap<String, String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionCategoryRelationshipData {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String
+    id: String,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionTagsRelationship {
     data: Vec<TransactionTagsRelationshipData>,
-    links: Option<HashMap<String, String>>
+    links: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
 struct TransactionTagsRelationshipData {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String
+    id: String,
 }
 
 #[derive(Deserialize, Debug)]
 pub(crate) struct PingSuccessful {
-    meta: Option<HashMap<String, String>>
+    meta: Option<HashMap<String, String>>,
 }
 
 #[derive(Deserialize, Debug)]
 pub(crate) struct PingNotAuthorized {
-    errors: Vec<HashMap<String, String>>
+    errors: Vec<HashMap<String, String>>,
 }

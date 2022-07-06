@@ -1,16 +1,16 @@
 #![allow(dead_code, unused_imports)]
 
+pub mod api_client;
 mod request_sender;
 pub mod types;
-pub mod api_client;
 
 use reqwest;
 use serde;
-use types::{ApiResponse,Account,Category,Tag,Transaction,PingSuccessful,PingNotAuthorized};
-use serde_json::{Result, json};
+use serde::ser::Error;
+use serde_json::{json, Result};
 use std::env;
 use std::env::VarError;
-use serde::ser::Error;
+use types::{Account, ApiResponse, Category, PingNotAuthorized, PingSuccessful, Tag, Transaction};
 
 #[cfg(test)]
 mod tests {
