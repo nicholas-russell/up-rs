@@ -1,17 +1,7 @@
 use crate::request_sender::{ApiRequest, RequestSender};
-use crate::types::{AccountType, ApiResponse, OwnershipType, TransactionStatus};
-use crate::{Account, Category, PingNotAuthorized, PingSuccessful, Tag, Transaction};
+use crate::types::{AccountType, OwnershipType, TransactionStatus, Account, Category, Tag, Transaction};
 use async_trait::async_trait;
-use chrono::{DateTime, FixedOffset, TimeZone};
-use core::option::Option;
-use reqwest::header::{HeaderMap, AUTHORIZATION};
-use reqwest::{header, RequestBuilder, StatusCode};
-use reqwest::{Error, Response};
-use serde::de::DeserializeOwned;
-use serde::Deserialize;
-use serde_json::Value;
-use std::borrow::Borrow;
-use std::collections::HashMap;
+use chrono::{DateTime, FixedOffset};
 
 const BASE_URL: &str = "https://api.up.com.au/api/v1";
 

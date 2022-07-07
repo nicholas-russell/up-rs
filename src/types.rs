@@ -1,7 +1,6 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::fmt;
 
 #[derive(Deserialize, Debug)]
 pub struct ApiResponse<T> {
@@ -226,14 +225,22 @@ struct CardPurchaseMethod {
 
 #[derive(Deserialize, Debug, strum_macros::Display)]
 enum CardPurchaseMethodType {
-    BAR_CODE,
+    #[serde(rename="BAR_CODE")]
+    BarCode,
+    #[serde(rename="OCR")]
     OCR,
-    CARD_PIN,
-    CARD_DETAILS,
-    CARD_ON_FILE,
-    ECOMMERCE,
-    MAGNETIC_STRIPE,
-    CONTACTLESS,
+    #[serde(rename="CARD_PIN")]
+    CardPin,
+    #[serde(rename="CARD_DETAILS")]
+    CardDetails,
+    #[serde(rename="CARD_ON_FILE")]
+    CardOnFile,
+    #[serde(rename="ECOMMERCE")]
+    Ecommerce,
+    #[serde(rename="MAGNETIC_STRIPE")]
+    MagneticStripe,
+    #[serde(rename="CONTACTLESS")]
+    Contactless,
 }
 
 #[derive(Deserialize, Debug)]

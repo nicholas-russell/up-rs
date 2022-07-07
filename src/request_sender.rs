@@ -1,6 +1,5 @@
-use crate::ApiResponse;
+use crate::types::ApiResponse;
 use async_trait::async_trait;
-use reqwest::header::HeaderMap;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
 
