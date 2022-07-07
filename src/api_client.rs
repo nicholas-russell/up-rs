@@ -1,7 +1,8 @@
 use crate::request_sender::{ApiRequest, RequestSender};
-use crate::types::{AccountType, ApiResponse, OwnershipType};
-use crate::{Account, Category, PingNotAuthorized, PingSuccessful};
+use crate::types::{AccountType, ApiResponse, OwnershipType, TransactionStatus};
+use crate::{Account, Category, PingNotAuthorized, PingSuccessful, Tag, Transaction};
 use async_trait::async_trait;
+use chrono::{DateTime, FixedOffset, TimeZone};
 use core::option::Option;
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 use reqwest::{header, RequestBuilder, StatusCode};
@@ -103,9 +104,9 @@ impl ApiRequest for RetrieveAccount {
 }
 
 impl RetrieveAccount {
-    pub fn new(api_key: &String, id: String) -> RetrieveAccount {
+    pub fn new(api_key: &String, account_id: String) -> RetrieveAccount {
         return RetrieveAccount {
-            url: format!("{}/accounts/{}", BASE_URL, id).to_string(),
+            url: format!("{}/accounts/{}", BASE_URL, account_id).to_string(),
             api_key: api_key.to_string(),
             params: Vec::new(),
         };
@@ -148,9 +149,221 @@ impl ListCategories {
         };
     }
 
-    pub fn parent(mut self, parent: String) -> ListCategories {
+    pub fn parent(mut self, parent: Category) -> ListCategories {
         self.params
-            .push(("filter[parent]".to_string(), parent));
+            .push(("filter[parent]".to_string(), parent.to_param().to_string()));
         return self;
+    }
+}
+
+pub struct RetrieveCategory {
+    url: String,
+    api_key: String,
+    params: Vec<(String, String)>,
+}
+
+#[async_trait]
+impl ApiRequest for RetrieveCategory {
+    type T = Category;
+
+    async fn send(self) -> Result<Self::T, String> {
+        RequestSender::send::<Category, RetrieveCategory>(self).await
+    }
+
+    fn get_url(&self) -> &String {
+        &self.url
+    }
+
+    fn get_params(&self) -> &Vec<(String, String)> {
+        &self.params
+    }
+
+    fn get_api_key(&self) -> &String {
+        &self.api_key
+    }
+}
+
+impl RetrieveCategory {
+    pub fn new(api_key: &String, category_id: String) -> RetrieveCategory {
+        return RetrieveCategory {
+            url: format!("{}/categories/{}", BASE_URL.to_string(), category_id).to_string(),
+            api_key: api_key.to_string(),
+            params: Vec::new(),
+        };
+    }
+}
+
+struct CategorizeTransaction {}
+
+impl CategorizeTransaction {}
+
+pub struct ListTags {
+    url: String,
+    api_key: String,
+    params: Vec<(String, String)>,
+}
+
+#[async_trait]
+impl ApiRequest for ListTags {
+    type T = Vec<Tag>;
+
+    async fn send(self) -> Result<Self::T, String> {
+        RequestSender::send_paginate::<Tag, ListTags>(self).await
+    }
+
+    fn get_url(&self) -> &String {
+        &self.url
+    }
+
+    fn get_params(&self) -> &Vec<(String, String)> {
+        &self.params
+    }
+
+    fn get_api_key(&self) -> &String {
+        &self.api_key
+    }
+}
+
+impl ListTags {
+    pub fn new(api_key: &String) -> ListTags {
+        return ListTags {
+            url: format!("{}/tags", BASE_URL).to_string(),
+            api_key: api_key.to_string(),
+            params: Vec::new(),
+        };
+    }
+
+    pub fn page_size(mut self, page_size: i32) -> ListTags {
+        if page_size > 0 && page_size <= 50 {
+            self.params
+                .push(("page[size]".to_string(), page_size.to_string()));
+        } else {
+            eprintln!("Page size has to be between 1 and 50.");
+        }
+        return self;
+    }
+}
+
+struct AddTagToTransaction {}
+
+impl AddTagToTransaction {}
+
+struct RemoveTagFromTransaction {}
+
+impl RemoveTagFromTransaction {}
+
+pub struct ListTransactions {
+    url: String,
+    api_key: String,
+    params: Vec<(String, String)>,
+}
+
+#[async_trait]
+impl ApiRequest for ListTransactions {
+    type T = Vec<Transaction>;
+
+    async fn send(self) -> Result<Self::T, String> {
+        RequestSender::send_paginate::<Transaction, ListTransactions>(self).await
+    }
+
+    fn get_url(&self) -> &String {
+        &self.url
+    }
+
+    fn get_params(&self) -> &Vec<(String, String)> {
+        &self.params
+    }
+
+    fn get_api_key(&self) -> &String {
+        &self.api_key
+    }
+}
+
+impl ListTransactions {
+    pub fn new(api_key: &String) -> ListTransactions {
+        return ListTransactions {
+            url: format!("{}/transactions", BASE_URL).to_string(),
+            api_key: api_key.to_string(),
+            params: Vec::new(),
+        };
+    }
+
+    pub fn page_size(mut self, page_size: i32) -> ListTransactions {
+        if page_size > 0 && page_size <= 30 {
+            self.params
+                .push(("page[size]".to_string(), page_size.to_string()));
+        } else {
+            eprintln!("Page size has to be between 1 and 30.");
+        }
+        return self;
+    }
+
+    pub fn status(mut self, transaction_status: TransactionStatus) -> ListTransactions {
+        self.params
+            .push(("filter[status]".to_string(), transaction_status.to_string()));
+        self
+    }
+
+    pub fn since(mut self, date_time: DateTime<FixedOffset>) -> ListTransactions {
+        self.params
+            .push(("filter[since]".to_string(), date_time.to_rfc3339()));
+        self
+    }
+
+    pub fn until(mut self, date_time: DateTime<FixedOffset>) -> ListTransactions {
+        self.params
+            .push(("filter[until]".to_string(), date_time.to_rfc3339()));
+        self
+    }
+
+    pub fn category(mut self, category: Category) -> ListTransactions {
+        self.params.push((
+            "filter[category]".to_string(),
+            category.to_param().to_string(),
+        ));
+        self
+    }
+
+    pub fn tag(mut self, tag: Tag) -> ListTransactions {
+        self.params
+            .push(("filter[tag".to_string(), tag.to_param().to_string()));
+        self
+    }
+}
+
+pub struct RetrieveTransaction {
+    url: String,
+    api_key: String,
+    params: Vec<(String, String)>,
+}
+
+#[async_trait]
+impl ApiRequest for RetrieveTransaction {
+    type T = Transaction;
+
+    async fn send(self) -> Result<Self::T, String> {
+        RequestSender::send::<Transaction, RetrieveTransaction>(self).await
+    }
+
+    fn get_url(&self) -> &String {
+        &self.url
+    }
+
+    fn get_params(&self) -> &Vec<(String, String)> {
+        &self.params
+    }
+
+    fn get_api_key(&self) -> &String {
+        &self.api_key
+    }
+}
+
+impl RetrieveTransaction {
+    pub fn new(api_key: &String, transaction_id: String) -> RetrieveTransaction {
+        return RetrieveTransaction {
+            url: format!("{}/transactions/{}", BASE_URL, transaction_id).to_string(),
+            api_key: api_key.to_string(),
+            params: Vec::new(),
+        };
     }
 }

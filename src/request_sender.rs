@@ -1,8 +1,8 @@
 use crate::ApiResponse;
+use async_trait::async_trait;
 use reqwest::header::HeaderMap;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
-use async_trait::async_trait;
 
 #[async_trait]
 pub trait ApiRequest {

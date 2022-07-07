@@ -49,32 +49,16 @@ pub struct AccountAttributes {
     pub created_at: DateTime<Utc>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, strum_macros::Display)]
 pub enum AccountType {
     SAVER,
     TRANSACTIONAL,
 }
 
-impl fmt::Display for AccountType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-        // or, alternatively:
-        // fmt::Debug::fmt(self, f)
-    }
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, strum_macros::Display)]
 pub enum OwnershipType {
     INDIVIDUAL,
     JOINT,
-}
-
-impl fmt::Display for OwnershipType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
-        // or, alternatively:
-        // fmt::Debug::fmt(self, f)
-    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -99,6 +83,12 @@ pub struct Category {
     pub attributes: CategoryAttributes,
     pub relationships: CategoryRelationships,
     pub links: Option<HashMap<String, String>>,
+}
+
+impl Category {
+    pub(crate) fn to_param(&self) -> &String {
+        &self.id
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -137,10 +127,16 @@ struct CategorizeTransactionData {
 }
 
 #[derive(Deserialize, Debug)]
-pub(crate) struct Tag {
+pub struct Tag {
     #[serde(rename = "type")]
-    resource_type: String,
-    id: String,
+    pub resource_type: String,
+    pub id: String,
+}
+
+impl Tag {
+    pub(crate) fn to_param(&self) -> &String {
+        &self.id
+    }
 }
 
 #[derive(Deserialize, Debug)]
@@ -161,10 +157,10 @@ struct TagTransactionData {
 }
 
 #[derive(Deserialize, Debug)]
-pub(crate) struct Transaction {
+pub struct Transaction {
     #[serde(rename = "type")]
     resource_type: String,
-    id: String,
+    pub id: String,
     attributes: TransactionAttributes,
     relationships: TransactionRelationships,
     links: Option<HashMap<String, String>>,
@@ -195,8 +191,8 @@ struct TransactionAttributes {
     created_at: DateTime<Utc>,
 }
 
-#[derive(Deserialize, Debug)]
-enum TransactionStatus {
+#[derive(Deserialize, Debug, strum_macros::Display)]
+pub enum TransactionStatus {
     HELD,
     SETTLED,
 }
@@ -228,7 +224,7 @@ struct CardPurchaseMethod {
     card_number_suffix: Option<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, strum_macros::Display)]
 enum CardPurchaseMethodType {
     BAR_CODE,
     OCR,
