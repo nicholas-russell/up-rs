@@ -141,7 +141,7 @@ pub struct Tag {
     #[serde(rename = "type")]
     pub resource_type: String,
     pub id: String,
-    pub relationships: TagRelationships
+    pub relationships: TagRelationships,
 }
 
 impl Tag {
@@ -167,7 +167,7 @@ struct TagTransaction {
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct TagTransactionRelationships {
-    pub links: HashMap<String, String>
+    pub links: HashMap<String, String>,
 }
 
 #[derive(Deserialize, Debug, PartialEq, Eq)]
@@ -207,9 +207,9 @@ pub struct TransactionAttributes {
 
 #[derive(Deserialize, Debug, strum_macros::Display, PartialEq, Eq)]
 pub enum TransactionStatus {
-    #[serde(rename="HELD")]
+    #[serde(rename = "HELD")]
     Held,
-    #[serde(rename="SETTLED")]
+    #[serde(rename = "SETTLED")]
     Settled,
 }
 
@@ -242,21 +242,21 @@ pub struct CardPurchaseMethod {
 
 #[derive(Deserialize, Debug, strum_macros::Display, PartialEq, Eq)]
 pub enum CardPurchaseMethodType {
-    #[serde(rename="BAR_CODE")]
+    #[serde(rename = "BAR_CODE")]
     BarCode,
-    #[serde(rename="OCR")]
+    #[serde(rename = "OCR")]
     OCR,
-    #[serde(rename="CARD_PIN")]
+    #[serde(rename = "CARD_PIN")]
     CardPin,
-    #[serde(rename="CARD_DETAILS")]
+    #[serde(rename = "CARD_DETAILS")]
     CardDetails,
-    #[serde(rename="CARD_ON_FILE")]
+    #[serde(rename = "CARD_ON_FILE")]
     CardOnFile,
-    #[serde(rename="ECOMMERCE")]
+    #[serde(rename = "ECOMMERCE")]
     Ecommerce,
-    #[serde(rename="MAGNETIC_STRIPE")]
+    #[serde(rename = "MAGNETIC_STRIPE")]
     MagneticStripe,
-    #[serde(rename="CONTACTLESS")]
+    #[serde(rename = "CONTACTLESS")]
     Contactless,
 }
 

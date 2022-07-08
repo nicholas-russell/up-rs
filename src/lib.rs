@@ -2,8 +2,6 @@ pub mod api_client;
 pub mod request_sender;
 pub mod types;
 
-
-
 #[cfg(test)]
 mod tests {
     use crate::types;
