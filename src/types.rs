@@ -1,11 +1,11 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, FixedOffset, Utc};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct ApiResponse<T> {
-    pub(crate) data: T,
-    pub(crate) links: Option<HashMap<String, Option<String>>>,
+    pub data: T,
+    pub links: Option<HashMap<String, Option<String>>>,
 }
 
 impl<T> ApiResponse<T> {
@@ -20,7 +20,7 @@ impl<T> ApiResponse<T> {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct Account {
     #[serde(rename = "type")]
     pub resource_type: String,
@@ -30,12 +30,12 @@ pub struct Account {
     pub links: HashMap<String, String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct AccountRelationships {
-    transactions: AccountTransactionsRelationships,
+    pub transactions: AccountTransactionsRelationships,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct AccountAttributes {
     #[serde(rename = "displayName")]
     pub display_name: String,
@@ -45,22 +45,26 @@ pub struct AccountAttributes {
     pub ownership_type: OwnershipType,
     pub balance: Money,
     #[serde(rename = "createdAt")]
-    pub created_at: DateTime<Utc>,
+    pub created_at: DateTime<FixedOffset>,
 }
 
-#[derive(Deserialize, Debug, strum_macros::Display)]
+#[derive(Deserialize, Debug, strum_macros::Display, PartialEq, Eq)]
 pub enum AccountType {
-    SAVER,
-    TRANSACTIONAL,
+    #[serde(rename = "SAVER")]
+    Saver,
+    #[serde(rename = "TRANSACTIONAL")]
+    Transactional,
 }
 
-#[derive(Deserialize, Debug, strum_macros::Display)]
+#[derive(Deserialize, Debug, strum_macros::Display, PartialEq, Eq)]
 pub enum OwnershipType {
-    INDIVIDUAL,
-    JOINT,
+    #[serde(rename = "INDIVIDUAL")]
+    Individual,
+    #[serde(rename = "JOINT")]
+    Joint,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct Money {
     #[serde(rename = "currencyCode")]
     pub currency_code: String,
@@ -69,12 +73,12 @@ pub struct Money {
     pub value_in_base_units: i128,
 }
 
-#[derive(Deserialize, Debug)]
-struct AccountTransactionsRelationships {
-    links: HashMap<String, String>,
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct AccountTransactionsRelationships {
+    pub links: HashMap<String, String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct Category {
     #[serde(rename = "type")]
     pub resource_type: String,
@@ -90,46 +94,54 @@ impl Category {
     }
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct CategoryAttributes {
     pub name: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct CategoryRelationships {
     pub parent: ParentRelationship,
     pub children: ChildRelationship,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct ChildRelationship {
     pub data: Option<Vec<HashMap<String, String>>>,
     pub links: Option<HashMap<String, String>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct ParentRelationship {
     pub data: Option<HashMap<String, String>>,
     pub links: Option<HashMap<String, String>>,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
 struct Payload<T> {
     data: T,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
 struct CategorizeTransactionData {
     #[serde(rename = "type")]
     resource_type: String,
     id: String,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
+struct TagTransactionData {
+    #[serde(rename = "type")]
+    resource_type: String,
+    id: String,
+}
+
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct Tag {
     #[serde(rename = "type")]
     pub resource_type: String,
     pub id: String,
+    pub relationships: TagRelationships
 }
 
 impl Tag {
@@ -138,93 +150,98 @@ impl Tag {
     }
 }
 
-#[derive(Deserialize, Debug)]
-struct TagRelationships {
-    transactions: TransactionRelationships,
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TagRelationships {
+    pub transactions: TagTransactionRelationships,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, PartialEq, Eq)]
 struct CategorizeTransaction {
     data: CategorizeTransactionData,
 }
 
-#[derive(Serialize, Debug)]
-struct TagTransactionData {
-    #[serde(rename = "type")]
-    resource_type: String,
-    id: String,
+#[derive(Serialize, Debug, PartialEq, Eq)]
+struct TagTransaction {
+    data: TagTransactionData,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TagTransactionRelationships {
+    pub links: HashMap<String, String>
+}
+
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub struct Transaction {
     #[serde(rename = "type")]
-    resource_type: String,
+    pub resource_type: String,
     pub id: String,
-    attributes: TransactionAttributes,
-    relationships: TransactionRelationships,
-    links: Option<HashMap<String, String>>,
+    pub attributes: TransactionAttributes,
+    pub relationships: TransactionRelationships,
+    pub links: Option<HashMap<String, String>>,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionAttributes {
-    status: TransactionStatus,
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionAttributes {
+    pub status: TransactionStatus,
     #[serde(rename = "rawText")]
-    raw_text: Option<String>,
-    description: String,
-    message: Option<String>,
+    pub raw_text: Option<String>,
+    pub description: String,
+    pub message: Option<String>,
     #[serde(rename = "isCategorizable")]
-    is_categorizable: bool,
+    pub is_categorizable: bool,
     #[serde(rename = "holdInfo")]
-    hold_info: Option<HoldInfo>,
+    pub hold_info: Option<HoldInfo>,
     #[serde(rename = "roundUp")]
-    round_up: Option<RoundUp>,
-    cashback: Option<Cashback>,
-    amount: Money,
+    pub round_up: Option<RoundUp>,
+    pub cashback: Option<Cashback>,
+    pub amount: Money,
     #[serde(rename = "foreignAmount")]
-    foreign_amount: Option<Money>,
+    pub foreign_amount: Option<Money>,
     #[serde(rename = "cardPurchaseMethod")]
-    card_purchase_method: Option<CardPurchaseMethod>,
+    pub card_purchase_method: Option<CardPurchaseMethod>,
     #[serde(rename = "settledAt")]
-    settled_at: Option<DateTime<Utc>>,
+    pub settled_at: Option<DateTime<FixedOffset>>,
     #[serde(rename = "createdAt")]
-    created_at: DateTime<Utc>,
+    pub created_at: DateTime<FixedOffset>,
 }
 
-#[derive(Deserialize, Debug, strum_macros::Display)]
+#[derive(Deserialize, Debug, strum_macros::Display, PartialEq, Eq)]
 pub enum TransactionStatus {
-    HELD,
-    SETTLED,
+    #[serde(rename="HELD")]
+    Held,
+    #[serde(rename="SETTLED")]
+    Settled,
 }
 
-#[derive(Deserialize, Debug)]
-struct HoldInfo {
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct HoldInfo {
     amount: Money,
     #[serde(rename = "foreignAmount")]
     foreign_amount: Option<Money>,
 }
 
-#[derive(Deserialize, Debug)]
-struct RoundUp {
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct RoundUp {
     amount: Money,
     #[serde(rename = "boostPortion")]
     boost_portion: Option<Money>,
 }
 
-#[derive(Deserialize, Debug)]
-struct Cashback {
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct Cashback {
     description: String,
     amount: Money,
 }
 
-#[derive(Deserialize, Debug)]
-struct CardPurchaseMethod {
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct CardPurchaseMethod {
     method: CardPurchaseMethodType,
     #[serde(rename = "cardNumberSuffix")]
     card_number_suffix: Option<String>,
 }
 
-#[derive(Deserialize, Debug, strum_macros::Display)]
-enum CardPurchaseMethodType {
+#[derive(Deserialize, Debug, strum_macros::Display, PartialEq, Eq)]
+pub enum CardPurchaseMethodType {
     #[serde(rename="BAR_CODE")]
     BarCode,
     #[serde(rename="OCR")]
@@ -243,75 +260,75 @@ enum CardPurchaseMethodType {
     Contactless,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionRelationships {
-    account: TransactionAccountRelationship,
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionRelationships {
+    pub account: TransactionAccountRelationship,
     #[serde(rename = "transferAccount")]
-    transfer_account: TransactionTransferAccountRelationship,
-    category: TransactionCategoryRelationship,
+    pub transfer_account: TransactionTransferAccountRelationship,
+    pub category: TransactionCategoryRelationship,
     #[serde(rename = "parentCategory")]
-    parent_category: TransactionCategoryRelationship,
-    tags: TransactionTagsRelationship,
+    pub parent_category: TransactionCategoryRelationship,
+    pub tags: TransactionTagsRelationship,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionAccountRelationship {
-    data: TransactionAccountRelationshipData,
-    links: Option<HashMap<String, String>>,
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionAccountRelationship {
+    pub data: TransactionAccountRelationshipData,
+    pub links: Option<HashMap<String, String>>,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionAccountRelationshipData {
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionAccountRelationshipData {
+    #[serde(rename = "type")]
+    pub resource_type: String,
+    pub id: String,
+}
+
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionTransferAccountRelationship {
+    pub data: Option<TransactionTransferAccountRelationshipData>,
+    pub links: Option<HashMap<String, String>>,
+}
+
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionTransferAccountRelationshipData {
     #[serde(rename = "type")]
     resource_type: String,
     id: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionTransferAccountRelationship {
-    data: Option<TransactionTransferAccountRelationshipData>,
-    links: Option<HashMap<String, String>>,
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionCategoryRelationship {
+    pub data: Option<TransactionCategoryRelationshipData>,
+    pub links: Option<HashMap<String, String>>,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionTransferAccountRelationshipData {
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionCategoryRelationshipData {
     #[serde(rename = "type")]
     resource_type: String,
     id: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionCategoryRelationship {
-    data: Option<TransactionCategoryRelationshipData>,
-    links: Option<HashMap<String, String>>,
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionTagsRelationship {
+    pub data: Vec<TransactionTagsRelationshipData>,
+    pub links: Option<HashMap<String, String>>,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionCategoryRelationshipData {
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct TransactionTagsRelationshipData {
     #[serde(rename = "type")]
-    resource_type: String,
-    id: String,
+    pub resource_type: String,
+    pub id: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct TransactionTagsRelationship {
-    data: Vec<TransactionTagsRelationshipData>,
-    links: Option<HashMap<String, String>>,
-}
-
-#[derive(Deserialize, Debug)]
-struct TransactionTagsRelationshipData {
-    #[serde(rename = "type")]
-    resource_type: String,
-    id: String,
-}
-
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub(crate) struct PingSuccessful {
     meta: Option<HashMap<String, String>>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq, Eq)]
 pub(crate) struct PingNotAuthorized {
     errors: Vec<HashMap<String, String>>,
 }
