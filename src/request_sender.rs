@@ -1,7 +1,26 @@
-use crate::types::ApiResponse;
+use std::collections::HashMap;
 use async_trait::async_trait;
 use reqwest::StatusCode;
 use serde::de::DeserializeOwned;
+use serde::Deserialize;
+
+#[derive(Deserialize, Debug, PartialEq, Eq)]
+pub struct ApiResponse<T> {
+    pub data: T,
+    pub links: Option<HashMap<String, Option<String>>>,
+}
+
+impl<T> ApiResponse<T> {
+    pub(crate) fn has_next(api_response: &ApiResponse<T>) -> bool {
+        return match &api_response.links {
+            None => false,
+            Some(v) => match v.get("next") {
+                None => false,
+                Some(v2) => v2.is_some(),
+            },
+        };
+    }
+}
 
 #[async_trait]
 pub trait ApiRequest {
@@ -81,5 +100,18 @@ impl RequestSender {
             }
             _ => Err(res.text().await.unwrap()),
         };
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::models;
+    use std::fs;
+
+    #[tokio::test]
+    async fn response_has_next() {
+        let json: String = fs::read_to_string("tests/example_json/list_accounts.json").unwrap();
+        let des: models::ApiResponse<Vec<models::Account>> = serde_json::from_str(&*json).unwrap();
+        assert_eq!(models::ApiResponse::has_next(&des), true);
     }
 }

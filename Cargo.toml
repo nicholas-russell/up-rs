@@ -1,7 +1,12 @@
 [package]
 name = "uprs"
+description = "A wrapper for the Up Bank API."
 version = "0.1.0"
 edition = "2021"
+license-file = "MIT"
+homepage = "https://github.com/nicholas-russell/uprs"
+repository = "https://github.com/nicholas-russell/uprs"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

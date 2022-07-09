@@ -4,7 +4,8 @@ mod tests {
     use serde_json::json;
     use std::collections::HashMap;
     use std::fs;
-    use uprs::types::*;
+    use uprs::models::*;
+    use uprs::request_sender::ApiResponse;
 
     #[tokio::test]
     async fn account_deserialization() {

@@ -1,12 +1,13 @@
-use crate::request_sender::*;
-use crate::types::*;
 
-use async_trait::async_trait;
-use chrono::{DateTime, FixedOffset};
+    use crate::request_sender::*;
+    use crate::models::*;
+    use async_trait::async_trait;
+    use chrono::{DateTime, FixedOffset};
 
-const BASE_URL: &str = "https://api.up.com.au/api/v1";
+    const BASE_URL: &str = "https://api.up.com.au/api/v1";
 
-pub struct ListAccounts {
+
+    pub struct ListAccounts {
     url: String,
     api_key: String,
     params: Vec<(String, String)>,
