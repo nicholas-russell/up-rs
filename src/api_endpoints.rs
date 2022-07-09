@@ -184,11 +184,11 @@ impl RetrieveCategory {
         };
     }
 }
-
+/* Todo
 struct CategorizeTransaction {}
 
 impl CategorizeTransaction {}
-
+*/
 pub struct ListTags {
     url: String,
     api_key: String,
@@ -235,7 +235,7 @@ impl ListTags {
         return self;
     }
 }
-
+/* Todo
 struct AddTagToTransaction {}
 
 impl AddTagToTransaction {}
@@ -243,7 +243,7 @@ impl AddTagToTransaction {}
 struct RemoveTagFromTransaction {}
 
 impl RemoveTagFromTransaction {}
-
+*/
 pub struct ListTransactions {
     url: String,
     api_key: String,
